@@ -6,18 +6,16 @@
 #include "InputActionValue.h"
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/Character.h"
+#include "Blueprint/AIBlueprintHelperLibrary.h"
+#include "NiagaraSystem.h"
+#include "NiagaraFunctionLibrary.h"
 
 AMyPlayerController::AMyPlayerController()
 {
-	//마우스 커서 보이게 설정
 	bShowMouseCursor = true;
-	//기본 마우스 커서 모양 설정
 	DefaultMouseCursor = EMouseCursor::Default;
 
-	//월드좌표 시작점
 	CachedDestination = FVector::ZeroVector;
-
-	//0으로 초기화
 	FollowTime = 0.f;
 
 }
@@ -49,11 +47,13 @@ void AMyPlayerController::SetupInputComponent()
 
 void AMyPlayerController::OnInputStarted()
 {
-	UE_LOG(LogTemp, Log, TEXT("OnInputStarted"));
+	StopMovement();
 }
 
 void AMyPlayerController::OnSetDestinationTriggered()
 {
+	FollowTime += GetWorld()->GetDeltaSeconds();
+
 	FHitResult Hit;
 
 	if (GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit))
@@ -73,5 +73,11 @@ void AMyPlayerController::OnSetDestinationTriggered()
 
 void AMyPlayerController::OnSetDestinationReleased()
 {
-	UE_LOG(LogTemp, Log, TEXT("OnSetDestinationReleased"));
+	if (FollowTime <= ShortPressThreshold)
+	{
+		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
+		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination);
+	}
+
+	FollowTime = 0.f;
 }

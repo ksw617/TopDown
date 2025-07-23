@@ -17,6 +17,11 @@ private:
 	FVector CachedDestination;
 	float FollowTime;
 	bool bMousePressed = false;
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	float ShortPressThreshold;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
+	class UNiagaraSystem* FXCursor;
 private:
 	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
