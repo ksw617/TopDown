@@ -17,6 +17,9 @@ private:
 	FVector CachedDestination;
 	float FollowTime;
 	bool bMousePressed = false;
+protected:
+	UPROPERTY(BlueprintReadOnly)
+	class AEnemy* TargetActor;		//Target 추가
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	float ShortPressThreshold;
@@ -36,10 +39,13 @@ private:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+	virtual void PlayerTick(float DeltaTime) override; // Tick 추가
 protected:
 	/** Input handlers */
 	void OnInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
+protected:
+	void CheckCursorTrace();	//CursorTrace 추가
 	
 };

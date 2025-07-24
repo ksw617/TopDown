@@ -9,6 +9,7 @@
 #include "Blueprint/AIBlueprintHelperLibrary.h"
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
+#include "Enemy.h"
 
 AMyPlayerController::AMyPlayerController()
 {
@@ -43,6 +44,12 @@ void AMyPlayerController::SetupInputComponent()
 		EnhancedInputComponent->BindAction(SetDestinationClickAction, ETriggerEvent::Canceled, this, &AMyPlayerController::OnSetDestinationReleased);
 	}
 
+}
+
+void AMyPlayerController::PlayerTick(float DeltaTime)
+{
+	Super::PlayerTick(DeltaTime);
+	CheckCursorTrace();
 }
 
 void AMyPlayerController::OnInputStarted()
@@ -80,4 +87,41 @@ void AMyPlayerController::OnSetDestinationReleased()
 	}
 
 	FollowTime = 0.f;
+}
+
+void AMyPlayerController::CheckCursorTrace()
+{
+
+	FHitResult Hit;
+
+	if (GetHitResultUnderCursor(ECollisionChannel::ECC_Visibility, true, Hit))
+	{
+		auto Other = Cast<AEnemy>(Hit.GetActor());
+		if (Other == nullptr)
+		{
+			if (TargetActor)
+			{
+				TargetActor->Unhighlight();
+			}
+		}
+		else
+		{
+			if (TargetActor)
+			{
+				if (TargetActor != Other)
+				{
+					TargetActor->Unhighlight();
+					Other->Highlight();
+				}
+
+			}
+			else
+			{
+				Other->Highlight();
+			}
+		}
+
+		TargetActor = Other;
+
+	}
 }
