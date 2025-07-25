@@ -19,7 +19,15 @@ private:
 	bool bMousePressed = false;
 protected:
 	UPROPERTY(BlueprintReadOnly)
-	class AEnemy* TargetActor;		//Target 추가
+	class AMyPlayer* MyPlayer;
+	UPROPERTY(BlueprintReadOnly)
+	class AEnemy* PointActor;	 
+	UPROPERTY(BlueprintReadOnly)
+	class AEnemy* TargetActor;	
+
+	UPROPERTY(EditAnywhere)
+	class UAnimMontage* AttackMontage;	// Attack Montage 추가
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input)
 	float ShortPressThreshold;
@@ -39,13 +47,15 @@ private:
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
-	virtual void PlayerTick(float DeltaTime) override; // Tick 추가
+	virtual void PlayerTick(float DeltaTime) override; 
 protected:
 	/** Input handlers */
 	void OnInputStarted();
 	void OnSetDestinationTriggered();
 	void OnSetDestinationReleased();
 protected:
-	void CheckCursorTrace();	//CursorTrace 추가
+	void CheckCursorTrace();	
+	void FollowAndAttack();
 	
+
 };

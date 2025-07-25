@@ -10,6 +10,9 @@
 #include "NiagaraSystem.h"
 #include "NiagaraFunctionLibrary.h"
 #include "Enemy.h"
+#include "MyPlayer.h"
+#include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 
 AMyPlayerController::AMyPlayerController()
 {
@@ -24,6 +27,8 @@ AMyPlayerController::AMyPlayerController()
 void AMyPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+
+	MyPlayer = Cast<AMyPlayer>(GetPawn());
 }
 
 void AMyPlayerController::SetupInputComponent()
@@ -49,11 +54,17 @@ void AMyPlayerController::SetupInputComponent()
 void AMyPlayerController::PlayerTick(float DeltaTime)
 {
 	Super::PlayerTick(DeltaTime);
+
 	CheckCursorTrace();
+	FollowAndAttack();
 }
 
 void AMyPlayerController::OnInputStarted()
 {
+	TargetActor = PointActor;
+
+	bMousePressed = true;
+
 	StopMovement();
 }
 
@@ -68,11 +79,10 @@ void AMyPlayerController::OnSetDestinationTriggered()
 		CachedDestination = Hit.Location;
 	}
 
-	APawn* ControlledPawn = GetPawn();
-	if (ControlledPawn != nullptr)
+	if (MyPlayer != nullptr)
 	{
-		FVector WorldDirection = (CachedDestination - ControlledPawn->GetActorLocation()).GetSafeNormal();
-		ControlledPawn->AddMovementInput(WorldDirection, 1.0f, false);
+		FVector WorldDirection = (CachedDestination - MyPlayer->GetActorLocation()).GetSafeNormal();
+		MyPlayer->AddMovementInput(WorldDirection, 1.0f, false);
 
 	}
 
@@ -80,10 +90,16 @@ void AMyPlayerController::OnSetDestinationTriggered()
 
 void AMyPlayerController::OnSetDestinationReleased()
 {
+	bMousePressed = false;
+
 	if (FollowTime <= ShortPressThreshold)
 	{
-		UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
-		UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination);
+		if (TargetActor == nullptr)
+		{
+			UAIBlueprintHelperLibrary::SimpleMoveToLocation(this, CachedDestination);
+			UNiagaraFunctionLibrary::SpawnSystemAtLocation(this, FXCursor, CachedDestination);
+		}
+
 	}
 
 	FollowTime = 0.f;
@@ -91,6 +107,8 @@ void AMyPlayerController::OnSetDestinationReleased()
 
 void AMyPlayerController::CheckCursorTrace()
 {
+	if (bMousePressed)
+		return;
 
 	FHitResult Hit;
 
@@ -99,18 +117,18 @@ void AMyPlayerController::CheckCursorTrace()
 		auto Other = Cast<AEnemy>(Hit.GetActor());
 		if (Other == nullptr)
 		{
-			if (TargetActor)
+			if (PointActor)
 			{
-				TargetActor->Unhighlight();
+				PointActor->Unhighlight();
 			}
 		}
 		else
 		{
-			if (TargetActor)
+			if (PointActor)
 			{
-				if (TargetActor != Other)
+				if (PointActor != Other)
 				{
-					TargetActor->Unhighlight();
+					PointActor->Unhighlight();
 					Other->Highlight();
 				}
 
@@ -121,7 +139,44 @@ void AMyPlayerController::CheckCursorTrace()
 			}
 		}
 
-		TargetActor = Other;
+		PointActor = Other;
 
+	}
+}
+
+void AMyPlayerController::FollowAndAttack()
+{
+	if (TargetActor == nullptr)
+		return;
+
+
+	FVector Direction = TargetActor->GetActorLocation() - MyPlayer->GetActorLocation();
+	float distance = Direction.Size2D();
+
+	if (distance < 250.f)
+	{
+		if (bMousePressed)
+		{
+			FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(MyPlayer->GetActorLocation(), TargetActor->GetActorLocation());
+			MyPlayer->SetActorRotation(LookAtRotation);
+
+			if (AttackMontage)
+			{
+				UGameplayStatics::ApplyDamage(TargetActor, 10.f, this, nullptr, NULL);
+				GetCharacter()->PlayAnimMontage(AttackMontage);
+			}
+
+			TargetActor = PointActor;
+		}
+		else
+		{
+			TargetActor = nullptr;
+		}
+		
+	}
+	else
+	{
+		FVector WorldDirection = Direction.GetSafeNormal();
+		MyPlayer->AddMovementInput(WorldDirection, 1.0, false);
 	}
 }
