@@ -4,9 +4,16 @@
 #include "CharacterAnim.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "MyPlayer.h"
 
 UCharacterAnim::UCharacterAnim()
 {
+	static ConstructorHelpers::FObjectFinder<UAnimMontage> AM(TEXT("/Script/Engine.AnimMontage'/Game/ParagonGreystone/Characters/Heroes/Greystone/Animations/Attack_PrimaryA_Montage.Attack_PrimaryA_Montage'"));
+	if (AM.Succeeded())
+	{
+		AttackMontage = AM.Object;
+
+	}
 }
 
 void UCharacterAnim::NativeBeginPlay()
@@ -37,4 +44,15 @@ void UCharacterAnim::NativeUpdateAnimation(float DeltaSeconds)
 
 		ShouldMove =  GroundSpeed > 3.0f;
 	}
+}
+
+void UCharacterAnim::AnimNotify_Hit()
+{
+	OnAttackHit.Broadcast(); // 등록된 함수 호출
+
+}
+
+void UCharacterAnim::PlayAttackMontage()
+{
+	Montage_Play(AttackMontage, 1.f);
 }

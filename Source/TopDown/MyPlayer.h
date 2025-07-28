@@ -20,6 +20,18 @@ private:
 public:
 	// Sets default values for this character's properties
 	AMyPlayer();
+public:
+	UPROPERTY(VisibleAnywhere)
+	bool bIsAttacking = false;
+	UPROPERTY()
+	class UCharacterAnim* CharacterAnim;
+
+public:
+	void Attack();
+	void OnAttackHit(); // Ãß°¡
+
+	UFUNCTION()
+	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 protected:
 	// Called when the game starts or when spawned

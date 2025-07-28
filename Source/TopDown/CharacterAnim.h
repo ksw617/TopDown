@@ -9,6 +9,8 @@
 /**
  * 
  */
+DECLARE_MULTICAST_DELEGATE(FOnAttackHit);//추가
+
 UCLASS()
 class TOPDOWN_API UCharacterAnim : public UAnimInstance
 {
@@ -22,16 +24,25 @@ private:
 	bool ShouldMove;
 	UPROPERTY(Category = "CharacterInfo", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
 	bool IsFalling;
+	UPROPERTY(Category = "CharacterInfo", EditAnywhere, BlueprintReadOnly, meta = (AllowPrivateAccess = true))
+	UAnimMontage* AttackMontage; 
 public:
 	UPROPERTY(VisibleAnywhere)
 	class ACharacter* Character;
 	UPROPERTY(VisibleAnywhere)
 	class UCharacterMovementComponent* MovementComponent;
 public:
+	FOnAttackHit OnAttackHit; //추가
+public:
 	UCharacterAnim();
 public:
 	virtual void NativeBeginPlay() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+	UFUNCTION()
+	void AnimNotify_Hit();
+
+	void PlayAttackMontage(); 
 
 
 };

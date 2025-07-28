@@ -160,11 +160,13 @@ void AMyPlayerController::FollowAndAttack()
 			FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(MyPlayer->GetActorLocation(), TargetActor->GetActorLocation());
 			MyPlayer->SetActorRotation(LookAtRotation);
 
-			if (AttackMontage)
-			{
-				UGameplayStatics::ApplyDamage(TargetActor, 10.f, this, nullptr, NULL);
-				GetCharacter()->PlayAnimMontage(AttackMontage);
-			}
+			//if (AttackMontage)
+			//{
+			//	UGameplayStatics::ApplyDamage(TargetActor, 10.f, this, nullptr, NULL);
+			//	GetCharacter()->PlayAnimMontage(AttackMontage);
+			//}
+
+			MyPlayer->Attack(); // ½ÇÇà
 
 			TargetActor = PointActor;
 		}
