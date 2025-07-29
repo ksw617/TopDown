@@ -3,6 +3,7 @@
 
 #include "Enemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "EnemyAIController.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -19,6 +20,8 @@ AEnemy::AEnemy()
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 640.0f, 0.0f);
 	GetCharacterMovement()->bConstrainToPlane = true;
 	GetCharacterMovement()->bSnapToPlaneAtStart = true;
+
+	AIControllerClass = AEnemyAIController::StaticClass(); // Ãß°¡
 
 
 }
