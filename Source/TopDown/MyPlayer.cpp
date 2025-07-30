@@ -63,6 +63,12 @@ void AMyPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+float AMyPlayer::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	UE_LOG(LogTemp, Log, TEXT("Damage : %f"), Damage);
+	return Damage;
+}
+
 void AMyPlayer::Attack()
 {
 	if (bIsAttacking)

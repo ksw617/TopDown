@@ -13,6 +13,10 @@ class TOPDOWN_API AEnemy : public ACharacter
 public:
 	UPROPERTY(BlueprintReadOnly)
 	bool bHighlighted = false;
+	UPROPERTY(VisibleAnywhere)
+	bool bIsAttacking = false;
+	UPROPERTY()
+	class UCharacterAnim* CharacterAnim;
 
 public:
 	// Sets default values for this character's properties
@@ -33,5 +37,10 @@ public:
 public:
 	void Highlight();
 	void Unhighlight();
+public:
+	void Attack();
+	void OnAttackHit(); 
+	UFUNCTION()
+	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
 
 };

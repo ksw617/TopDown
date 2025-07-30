@@ -4,6 +4,9 @@
 #include "Enemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "EnemyAIController.h"
+#include "CharacterAnim.h"
+#include "Kismet/GameplayStatics.h"
+#include "MyPlayer.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -30,6 +33,9 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+	CharacterAnim = Cast<UCharacterAnim>(GetMesh()->GetAnimInstance());
+	CharacterAnim->OnMontageEnded.AddDynamic(this, &AEnemy::OnAttackMontageEnded);
+	CharacterAnim->OnAttackHit.AddUObject(this, &AEnemy::OnAttackHit); 
 	
 }
 
@@ -49,8 +55,8 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 float AEnemy::TakeDamage(float Damage, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	UE_LOG(LogTemp, Log, TEXT("Damage : %f"), Damage);
-	return 0.0f;
+	//UE_LOG(LogTemp, Log, TEXT("Damage : %f"), Damage);
+	return Damage;
 }
 
 void AEnemy::Highlight()
@@ -68,3 +74,56 @@ void AEnemy::Unhighlight()
 	GetMesh()->SetRenderCustomDepth(false);
 }
 
+void AEnemy::Attack()
+{
+	if (bIsAttacking)
+		return;
+
+	CharacterAnim->PlayAttackMontage();
+
+	bIsAttacking = true;
+}
+
+
+void AEnemy::OnAttackHit()
+{
+	FHitResult HitResult;
+	FCollisionQueryParams Params(NAME_None, false, this);
+
+	float AttackRange = 100.f;
+	float AtttackRadius = 50.f;
+	float HalfHeight = AttackRange * 0.5f + AtttackRadius;
+
+	FVector Forward = GetActorForwardVector() * AttackRange;
+
+	bool Result = GetWorld()->SweepSingleByChannel(OUT HitResult,
+		GetActorLocation(),
+		GetActorLocation() + Forward,
+		FQuat::Identity,
+		ECollisionChannel::ECC_GameTraceChannel2,
+		FCollisionShape::MakeCapsule(AtttackRadius, HalfHeight),
+		Params);
+
+	FVector Center = GetActorLocation() + Forward * 0.5f;
+	FQuat Rotation = FRotationMatrix::MakeFromZ(Forward).ToQuat();
+
+	FColor DrawColor = Result ? FColor::Green : FColor::Red;
+
+	DrawDebugCapsule(GetWorld(), Center, HalfHeight, AtttackRadius, Rotation, DrawColor, false, 2.f);
+
+	if (Result && HitResult.GetActor())
+	{
+		auto Player = Cast<AMyPlayer>(HitResult.GetActor());
+		if (Player)
+		{
+			UGameplayStatics::ApplyDamage(Player, 10.f, GetController(), nullptr, NULL);
+		}
+
+	}
+
+
+}
+void AEnemy::OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted)
+{
+	bIsAttacking = false;
+}
