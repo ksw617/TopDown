@@ -17,6 +17,10 @@ public:
 	bool bIsAttacking = false;
 	UPROPERTY()
 	class UCharacterAnim* CharacterAnim;
+	UPROPERTY(BlueprintReadOnly)
+	class UWidgetComponent* HpBar;
+	UPROPERTY()
+	class UCharacterInfo* CharacterInfo;
 
 public:
 	// Sets default values for this character's properties
@@ -42,5 +46,6 @@ public:
 	void OnAttackHit(); 
 	UFUNCTION()
 	void OnAttackMontageEnded(UAnimMontage* Montage, bool bInterrupted);
+	void OnDead(AActor* DamageCauser);
 
 };
