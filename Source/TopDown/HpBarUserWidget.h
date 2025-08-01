@@ -16,8 +16,8 @@ class TOPDOWN_API UHpBarUserWidget : public UUserWidget
 public:
 	UPROPERTY()
 	class UCharacterInfo* CharacterInfo;
-	UPROPERTY(meta =())
-	class UProgressBar* PB_Bar;
+	UPROPERTY(meta =(BindWidget))
+	class UProgressBar* HP_Bar;
 public:
 	void BindHp(class UCharacterInfo* Info);
 	void UpdateHp();

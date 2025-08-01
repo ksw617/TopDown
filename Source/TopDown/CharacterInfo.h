@@ -23,8 +23,6 @@ class TOPDOWN_API UCharacterInfo : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
-	UCharacterInfo();
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ECharacterStatus Status = ECharacterStatus::NONE;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)

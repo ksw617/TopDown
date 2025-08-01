@@ -8,7 +8,7 @@
 void UHpBarUserWidget::BindHp(UCharacterInfo* Info)
 {
 	CharacterInfo = Info;
-	CharacterInfo->OnHpChanged(this, &UHpBarUserWidget::UpdateHp);
+	CharacterInfo->OnHpChanged.AddUObject(this, &UHpBarUserWidget::UpdateHp);
 
 	UpdateHp();
 
@@ -16,5 +16,5 @@ void UHpBarUserWidget::BindHp(UCharacterInfo* Info)
 
 void UHpBarUserWidget::UpdateHp()
 {
-	PB_Bar->SetPercent(CharacterInfo->GetHpRatio());
+	HP_Bar->SetPercent(CharacterInfo->GetHpRatio());
 }
