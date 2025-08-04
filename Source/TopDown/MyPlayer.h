@@ -23,4 +23,5 @@ public:
 public:
 	virtual void OnDead(AActor* DamageCauser) override;
 	virtual void ApplyDamage(AActor* actor) override;
+	virtual void BeginPlay() override;
 };

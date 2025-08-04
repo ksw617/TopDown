@@ -6,6 +6,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Enemy.h"
 #include "Kismet/GameplayStatics.h"
+#include "MyItem.h"
 
 
 // Sets default values
@@ -33,6 +34,24 @@ void AMyPlayer::ApplyDamage(AActor* actor)
 	{
 		UGameplayStatics::ApplyDamage(Enemy, 10.f, GetController(), nullptr, NULL);
 	}
+}
+
+void AMyPlayer::BeginPlay()
+{
+	Super::BeginPlay();
+
+	//UE_LOG(LogTemp, Log, TEXT("1"));
+	//FName WeaponSocket(TEXT("hand_rSocket"));
+	//if (GetMesh()->DoesSocketExist(WeaponSocket))
+	//{
+	//	auto MyWeapon = GetWorld()->SpawnActor<AMyItem>(FVector::ZeroVector, FRotator::ZeroRotator);
+	//
+	//	if (MyWeapon)
+	//	{
+	//		MyWeapon->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, WeaponSocket);
+	//	}
+	//
+	//}
 }
 
 void AMyPlayer::OnDead(AActor* DamageCauser)
