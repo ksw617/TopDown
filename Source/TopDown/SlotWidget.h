@@ -9,13 +9,20 @@
 /**
  * 
  */
+
+class UImage;
+
 UCLASS()
 class TOPDOWN_API USlotWidget : public UUserWidget
 {
 	GENERATED_BODY()
+public:
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UImage> Image_Slot;
+public:
+	USlotWidget(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
+protected:
+	virtual void NativeConstruct() override;
 	
-	virtual void NativeOnMouseEnter(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
-	virtual void NativeOnMouseLeave(const FPointerEvent& InMouseEvent) override;
 
-	virtual FReply NativeOnMouseButtonDown(const FGeometry& InGeometry, const FPointerEvent& InMouseEvent) override;
 };
