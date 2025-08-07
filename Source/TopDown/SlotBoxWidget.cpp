@@ -5,6 +5,7 @@
 #include "SlotWidget.h"
 #include "ItemWidget.h"
 #include "Components/UniformGridPanel.h"
+#include "ItemDragDropOperation.h"
 
 USlotBoxWidget::USlotBoxWidget(const FObjectInitializer& ObjectInitializer)	: Super(ObjectInitializer)
 {
@@ -17,7 +18,6 @@ USlotBoxWidget::USlotBoxWidget(const FObjectInitializer& ObjectInitializer)	: Su
 	ConstructorHelpers::FClassFinder<UItemWidget> IW(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/UI/WBP_Item.WBP_Item_C'"));
 	if (IW.Succeeded())
 	{
-		UE_LOG(LogTemp, Log, TEXT("Item Widget"));
 		ItemWidgetClass = IW.Class;
 	}
 }
@@ -26,12 +26,6 @@ void USlotBoxWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	UE_LOG(LogTemp, Log, TEXT("NativeConstruct"));
-
-	const int COLUMN = 4;
-	const int ROW = 8;
-
-	//slotWidgets.SetNum(32);
 	slotWidgets.SetNum(COLUMN * ROW);
 
 	for (int x = 0; x < COLUMN; x++)
@@ -41,7 +35,6 @@ void USlotBoxWidget::NativeConstruct()
 			USlotWidget* SlotWidget = CreateWidget<USlotWidget>(GetWorld(), SlotWidgetClass);
 
 			int32 index = x * ROW + y;
-			UE_LOG(LogTemp, Log, TEXT("Index : %d"), index);
 			slotWidgets[index] = SlotWidget;
 			GridPanel->AddChildToUniformGrid(SlotWidget, y, x);
 
@@ -50,4 +43,37 @@ void USlotBoxWidget::NativeConstruct()
 
 	UItemWidget* ItemWidget = CreateWidget<UItemWidget>(GetWorld(), ItemWidgetClass);
 	GridPanel->AddChildToUniformGrid(ItemWidget, 0, 0);
+}
+
+void USlotBoxWidget::NativeOnDragLeave(const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDragLeave(InDragDropEvent, InOperation);
+	//UE_LOG(LogTemp, Log, TEXT("NativeOnDragLeave"));
+}
+
+bool USlotBoxWidget::NativeOnDragOver(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDragOver(InGeometry, InDragDropEvent, InOperation);
+	//UE_LOG(LogTemp, Log, TEXT("NativeOnDragOver"));
+	UItemDragDropOperation* DragDrop = Cast<UItemDragDropOperation>(InOperation);
+
+	FVector2D MouseWidgetPos = InGeometry.AbsoluteToLocal(InDragDropEvent.GetScreenSpacePosition());
+	FVector2D ToWidgetPos = MouseWidgetPos - DragDrop->DeltaWidgetPos;
+
+	UE_LOG(LogTemp, Log, TEXT("NativeOnDragOver X : %f, Y : %f"), ToWidgetPos.X, ToWidgetPos.Y);
+	return false;
+}
+
+bool USlotBoxWidget::NativeOnDrop(const FGeometry& InGeometry, const FDragDropEvent& InDragDropEvent, UDragDropOperation* InOperation)
+{
+	Super::NativeOnDrop(InGeometry, InDragDropEvent, InOperation);
+	
+	UItemDragDropOperation* DragDrop = Cast<UItemDragDropOperation>(InOperation);
+
+	FVector2D MouseWidgetPos = InGeometry.AbsoluteToLocal(InDragDropEvent.GetScreenSpacePosition());
+	FVector2D ToWidgetPos = MouseWidgetPos - DragDrop->DeltaWidgetPos;
+
+	UE_LOG(LogTemp, Log, TEXT("X : %f, Y : %f"), ToWidgetPos.X, ToWidgetPos.Y);
+
+	return false;
 }
